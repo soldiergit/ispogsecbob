@@ -1,0 +1,6 @@
+version: '2'
+services:
+  ispogsecbob-vue:
+    image: mikeyboom/ispogsecbob-vue
+    ports:
+      - 8002:8001
