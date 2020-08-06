@@ -78,15 +78,10 @@ public class EntProjectAttachController {
 
         for(MultipartFile file : files){
             String fileName = file.getOriginalFilename();
-
-            String result = null;
             try {
-                result = UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
+                UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            if (!result.equals("true")) {
-                R.error(result);
             }
             UPLOAD_FILES_PATH += fileName;
             entProjectAttachEntity = new EntProjectAttachEntity();

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ispogsecbob.modules.fabric.dao.EntFabricFileDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ispogsecbob.modules.fabric.entity.EntFabricFileEntity" id="entFabricFileMap">
+        <result property="id" column="id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileHash" column="file_hash"/>
+        <result property="fileTime" column="file_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+
+</mapper>

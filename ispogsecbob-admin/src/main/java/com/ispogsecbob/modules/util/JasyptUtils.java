@@ -4,6 +4,13 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.EnvironmentPBEConfig;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
+
+import static sun.security.pkcs11.wrapper.Functions.toHexString;
+
 /**
  * @ProjectName ispogsecbob-admin
  * @Author 麦奇
@@ -50,4 +57,31 @@ public class JasyptUtils {
         System.out.println(plainText);
     }
 
+    /**
+     * sha256
+     * @param file
+     * @param hashType
+     * @return
+     * @throws Exception
+     */
+    public static String getHash(File file, String hashType) throws Exception {
+        InputStream fis = new FileInputStream(file);
+        byte buffer[] = new byte[1024];
+        MessageDigest md5 = MessageDigest.getInstance(hashType);
+        for (int numRead = 0; (numRead = fis.read(buffer)) > 0; ) {
+            md5.update(buffer, 0, numRead);
+        }
+        fis.close();
+        return toHexString(md5.digest());
+    }
+
+    /**
+     * 获取文件sha256
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public static String getSHA_256(File file) throws Exception{
+        return getHash(file,"SHA-256");
+    }
 }

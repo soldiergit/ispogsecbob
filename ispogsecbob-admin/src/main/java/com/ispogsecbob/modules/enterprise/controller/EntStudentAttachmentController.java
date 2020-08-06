@@ -1,5 +1,6 @@
 package com.ispogsecbob.modules.enterprise.controller;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -82,15 +83,7 @@ public class EntStudentAttachmentController {
 
         for(MultipartFile file : files){
             String fileName = file.getOriginalFilename();
-            String result = null;
-            try {
-                result = UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (!result.equals("true")) {
-                R.error(result);
-            }
+            UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
             UPLOAD_FILES_PATH += fileName;
             entStudentAttachmentEntity = new EntStudentAttachmentEntity();
             entStudentAttachmentEntity.setStuAttachmentName(fileName);

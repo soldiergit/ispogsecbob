@@ -10,8 +10,11 @@ package com.ispogsecbob.common.utils;
 public class Constant {
 	/** 超级管理员ID */
 	public static final int SUPER_ADMIN = 1;
+	//文件存入区块链共识个数
+    public static final Integer NUMBER_OF_CONSENSUS = 3;
+    public static final String BLOCK_CHAIN_SAVE_REQUEST_URL = "区块链保存请求URL";
 
-	/**
+    /**
 	 * 菜单类型
 	 * 
 	 * @author chenshun
@@ -98,5 +101,7 @@ public class Constant {
             return value;
         }
     }
+
+    public static final String SAVE_BLOCK_CHAIN_FILE_PATH = "/home/mikey/Downloads/tmp/";
 
 }

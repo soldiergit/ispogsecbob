@@ -7,4 +7,4 @@ The directions for using this are documented in the Hyperledger Fabric
 
 start network `y|./byfn.sh up -o etcdraft -s couchdb`  
 
-[img](network.png)
+![avatar](network.png)

@@ -9,16 +9,20 @@ import java.io.IOException;
  * 文件上传util
  */
 public class UpLoadFileUtils {
-    public static String upLoad (String UPLOAD_FILES_PATH, String fileName, MultipartFile file) throws IOException {
+    public static boolean upLoad (String UPLOAD_FILES_PATH, String fileName, MultipartFile file) {
         if(file.isEmpty()){
-            return "文件为空";
+            return false;
         }else{
             File dest = new File(UPLOAD_FILES_PATH  + "/" +  fileName );
             if(!dest.getParentFile().exists()){ //判断文件父目录是否存在
                 dest.getParentFile().mkdirs();
             }
-            file.transferTo(dest);
+            try {
+                file.transferTo(dest);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return "true";
+        return true;
     }
 }

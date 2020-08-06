@@ -46,18 +46,13 @@ public class CommonFileController extends AbstractController {
             for(MultipartFile file : files){
                 Map<String,Object> item = new HashMap<>();
                 String fileName = file.getOriginalFilename();
-                String result = UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
-                if (!result.equals("true")) {
-                    item.put("code", 500);
-                }else{
-                    item.put("code", 200);
-                }
+                UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
                 tempPath += fileName;
                 item.put("url", tempPath);
                 logger.info("文件路径：{}", tempPath);
                 resilt.add(item);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return R.ok().put("data",resilt);
@@ -82,14 +77,11 @@ public class CommonFileController extends AbstractController {
                 return R.error("文件为空，请重新上传");
             }
             String fileName = file.getOriginalFilename();
-            String result  = UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
-            if (!result.equals("true")) {
-                return R.error(result);
-            }
+            UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
             logger.info("文件路径：{}", tempPath + fileName);
             logger.info(fileName);
             return R.ok("文件上传成功").put("data", UPLOAD_FILES_PATH + fileName);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return R.error("文件上传失败");

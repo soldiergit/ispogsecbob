@@ -64,6 +64,8 @@ public class ShiroConfig {
         filterMap.put("/ispogsecbob/sys/title/all", "anon");
         filterMap.put("/ispogsecbob/match/event/all", "anon");
         filterMap.put("/ispogsecbob/use/teacher/all", "anon");
+        filterMap.put("/enterprise/fabric/upload", "anon");
+        filterMap.put("/enterprise/fabric/download", "anon");
         filterMap.put("/common/file/**", "anon");
         filterMap.put("/druid/**", "anon");
         filterMap.put("/app/**", "anon");
