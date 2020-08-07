@@ -59,19 +59,19 @@ public class JasyptUtils {
 
     /**
      * sha256
-     * @param file
+     * @param inputStream
      * @param hashType
      * @return
      * @throws Exception
      */
-    public static String getHash(File file, String hashType) throws Exception {
-        InputStream fis = new FileInputStream(file);
+    public static String getHash(InputStream inputStream, String hashType) throws Exception {
+//        InputStream fis = new FileInputStream(file);
         byte buffer[] = new byte[1024];
         MessageDigest md5 = MessageDigest.getInstance(hashType);
-        for (int numRead = 0; (numRead = fis.read(buffer)) > 0; ) {
+        for (int numRead = 0; (numRead = inputStream.read(buffer)) > 0; ) {
             md5.update(buffer, 0, numRead);
         }
-        fis.close();
+        inputStream.close();
         return toHexString(md5.digest());
     }
 
@@ -82,6 +82,17 @@ public class JasyptUtils {
      * @throws Exception
      */
     public static String getSHA_256(File file) throws Exception{
-        return getHash(file,"SHA-256");
+        InputStream fis = new FileInputStream(file);
+        return getHash(fis,"SHA-256");
+    }
+
+    /**
+     * 获取流sha256
+     * @param inputStream
+     * @return
+     * @throws Exception
+     */
+    public static String getSHA_256(InputStream inputStream) throws Exception{
+        return getHash(inputStream,"SHA-256");
     }
 }

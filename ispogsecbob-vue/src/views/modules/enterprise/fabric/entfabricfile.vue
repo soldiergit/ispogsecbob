@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('enterprise:fabric:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button type="warm" @click="checkHandler">上传文件验证</el-button>
+        <el-button v-if="isAuth('enterprise:fabric:save')" type="primary" @click="addOrUpdateHandle()">上传凭证文件</el-button>
+        <el-button type="success" @click="checkHandler">上传文件验证</el-button>
         <el-button v-if="isAuth('enterprise:fabric:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
@@ -26,6 +26,7 @@
       <el-table-column
         header-align="center"
         align="center"
+        min-width="20"
         label="序号">
         <template slot-scope="props">
           <p v-text="props.$index+1"></p>
@@ -47,12 +48,14 @@
         prop="fileTime"
         header-align="center"
         align="center"
+        min-width="30"
         label="保存时间">
       </el-table-column>
       <el-table-column
         prop="sysUserEntity"
         header-align="center"
         align="center"
+        min-width="40"
         label="持有人">
         <template slot-scope="scope">
           <el-tag class="small"><span v-text="scope.row.sysUserEntity.name"></span></el-tag>
@@ -62,11 +65,12 @@
         prop="status"
         header-align="center"
         align="center"
+        min-width="20"
         label="状态">
         <template slot-scope="scope">
-          <el-tag class="small" v-if="scope.row.status === 0">待审核</el-tag>
-          <el-tag class="small" v-if="scope.row.status <= 3">审核中</el-tag>
-          <el-tag class="small" v-if="scope.row.status >= 3">已存入</el-tag>
+          <el-tag class="el-tag--danger" effect="dark" v-if="scope.row.status === 0">待审核</el-tag>
+          <el-tag class="el-alert--warning" effect="dark" v-else-if="scope.row.status <= 3 && scope.row.status > 0">审核中</el-tag>
+          <el-tag class="small" type="success" effect="dark" v-else="scope.row.status > 3">已存入</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -76,9 +80,9 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="text" size="small" @click="applyHandle(scope.row.id)">审核</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button  v-if="isAuth('enterprise:fabric:apply')" type="text" size="small" @click="applyHandle(scope.row.id)">审核</el-button>
+          <el-button v-if="scope.row.userId === userId" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-else-if="scope.row.userId != userId" type="text" size="small">无权限</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -93,6 +97,7 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <fabric-file-check v-if="checkVisible" ref="check" @refreshDataList="getDataList"></fabric-file-check>
   </div>
 </template>
 
@@ -105,6 +110,7 @@
         dataForm: {
           key: ''
         },
+        userId: this.$store.state.user.id,
         dataList: [],
         pageIndex: 1,
         pageSize: 10,
@@ -205,7 +211,7 @@
           })
         })
       },
-      // 删除
+      // 审核
       applyHandle (id) {
         this.$confirm(`确定对其审核操作?`, '提示', {
           confirmButtonText: '确定',

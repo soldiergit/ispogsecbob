@@ -1,10 +1,11 @@
 <template>
   <el-dialog
-    :title="!dataForm.id ? '新增' : '修改'"
+    title="验证"
     :close-on-click-modal="false"
     width="600px"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="95px">
+    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"
+             label-width="95px">
       <el-col :span="24">
         <el-row :gutter="12">
           <el-form-item label="文件">
@@ -14,9 +15,8 @@
               ref="upload"
               :action=uploadUrl
               multiple
-              :auto-upload="false"
               :limit="1"
-              :data="data"
+              :show-file-list="false"
               :on-exceed="overlimit"
               :on-success="successHandler"
               :on-error="errorHandler"
@@ -28,10 +28,54 @@
           </el-form-item>
         </el-row>
       </el-col>
+      <el-col v-if="checkNotFoundVisible">
+        <el-row>
+          <el-form-item label="结果">
+            <el-tag class="el-alert--error">存证系统未存在该记录</el-tag>
+          </el-form-item>
+        </el-row>
+      </el-col>
+      <div v-if="resultVisible">
+        <el-col>
+          <el-row>
+            <el-form-item label="结果">
+              <el-tag class="el-alert--success">验证成功</el-tag>
+            </el-form-item>
+          </el-row>
+        </el-col>
+        <el-col>
+          <el-row>
+            <el-form-item label="文件名">
+              <el-tag class="el-alert--success"><span v-text="dataForm.fileName"></span></el-tag>
+            </el-form-item>
+          </el-row>
+        </el-col>
+        <el-col>
+          <el-row>
+            <el-form-item label="时间">
+              <el-tag class="el-alert--success"><span v-text="dataForm.fileTime"></span></el-tag>
+            </el-form-item>
+          </el-row>
+        </el-col>
+        <el-col>
+          <el-row>
+            <el-form-item label="持有人">
+              <el-tag class="el-alert--success"><span v-text="dataForm.sysUserEntity.name"></span></el-tag>
+            </el-form-item>
+          </el-row>
+        </el-col>
+
+        <el-col>
+          <el-row>
+            <el-form-item label="哈希">
+              <el-tag class="el-alert--success"><span v-text="dataForm.fileHash"></span></el-tag>
+            </el-form-item>
+          </el-row>
+        </el-col>
+      </div>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="submitUpload()">确定</el-button>
+      <el-button @click="visible = false">关闭</el-button>
     </span>
   </el-dialog>
 </template>
@@ -41,11 +85,10 @@
     data () {
       return {
         visible: false,
+        resultVisible: false,
+        checkNotFoundVisible: false,
         fileList: [],
-        uploadUrl: this.$http.adornUrl(`/enterprise/fabric/upload?token=${this.$cookie.get('token')}`),
-        data:{
-          'userId': this.$store.state.user.id
-        },
+        uploadUrl: this.$http.adornUrl(`/enterprise/fabric/check?token=${this.$cookie.get('token')}`),
         dataForm: {
           id: 0,
           fileName: '',
@@ -53,11 +96,12 @@
           fileHash: '',
           fileTime: '',
           userId: '',
-          status: ''
+          status: '',
+          sysUserEntity: ''
         },
         dataRule: {
           fileName: [
-            { required: true, message: '文件名不能为空', trigger: 'blur' }
+            {required: true, message: '文件名不能为空', trigger: 'blur'}
           ]
         }
       }
@@ -66,6 +110,9 @@
       init (id) {
         this.dataForm.id = id || 0
         this.fileList = []
+        this.resultVisible = false
+        this.checkNotFoundVisible = false
+        this.dataForm = {}
         this.visible = true
         this.$nextTick(() => {
           if (this.dataForm.id) {
@@ -81,10 +128,6 @@
           }
         })
       },
-      // 表单提交
-      submitUpload () {
-        this.$refs.upload.submit()
-      },
       overlimit () {
         this.$notify.error({
           title: '错误',
@@ -92,13 +135,27 @@
         })
       },
       successHandler (res) {
-        this.$notify({
-          title: '成功',
-          message: res.msg,
-          type: 'success'
-        })
-        this.visible = false
-        this.$emit('refreshDataList')
+        // console.log(res)
+        if (res.code === 0) {
+          if (res.entFabricFileEntity != null) {
+            this.dataForm = res.entFabricFileEntity
+            this.resultVisible = true
+            this.$notify({
+              title: '成功',
+              message: '验证成功',
+              type: 'success'
+            })
+          } else {
+            this.checkNotFoundVisible = true
+            this.$notify.error({
+              title: '错误',
+              message: '存证系统未存在该记录'
+            })
+          }
+        } else {
+          this.$message.error(res.msg)
+        }
+        this.fileList = []
       },
       errorHandler () {
         this.$notify.error({

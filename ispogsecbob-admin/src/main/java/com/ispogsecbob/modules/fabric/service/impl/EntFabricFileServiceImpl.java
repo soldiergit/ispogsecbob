@@ -20,15 +20,24 @@ import com.ispogsecbob.modules.fabric.service.EntFabricFileService;
 @Service("entFabricFileService")
 public class EntFabricFileServiceImpl extends ServiceImpl<EntFabricFileDao, EntFabricFileEntity> implements EntFabricFileService {
 
+    /**
+     * 系统用户
+     */
     @Autowired
     private SysUserService sysUserService;
 
+    /**
+     * 获取列表
+     * @param params
+     * @return
+     */
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
 
         EntityWrapper<EntFabricFileEntity> ew = new EntityWrapper<>();
 
         if (params.get("key")!=null)ew.like("file_name",params.get("key").toString());
+        if (params.get("userId")!=null)ew.like("user_id",params.get("userId").toString());
 
         Page<EntFabricFileEntity> page = this.selectPage(
                 new Query<EntFabricFileEntity>(params).getPage(),
@@ -42,6 +51,25 @@ public class EntFabricFileServiceImpl extends ServiceImpl<EntFabricFileDao, EntF
         });
 
         return new PageUtils(page);
+    }
+
+    /**
+     * 通过文件hash查询
+     * @param sha_256
+     * @return
+     */
+    @Override
+    public EntFabricFileEntity findBySHA256(String sha_256) {
+
+        EntityWrapper<EntFabricFileEntity> ew = new EntityWrapper<>();
+
+        ew.eq("file_hash",sha_256);
+
+        EntFabricFileEntity entFabricFileEntity = super.selectOne(ew);
+
+        if (entFabricFileEntity!=null)entFabricFileEntity.setSysUserEntity(sysUserService.selectById(entFabricFileEntity.getUserId()));
+
+        return entFabricFileEntity;
     }
 
 }

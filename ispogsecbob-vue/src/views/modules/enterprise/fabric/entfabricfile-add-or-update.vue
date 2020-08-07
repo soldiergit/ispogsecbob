@@ -31,7 +31,7 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" @click="submitUpload()">确定</el-button>
+      <el-button type="primary" @click="submitUpload()">确定上传</el-button>
     </span>
   </el-dialog>
 </template>
@@ -43,7 +43,7 @@
         visible: false,
         fileList: [],
         uploadUrl: this.$http.adornUrl(`/enterprise/fabric/upload?token=${this.$cookie.get('token')}`),
-        data:{
+        data: {
           'userId': this.$store.state.user.id
         },
         dataForm: {
@@ -83,6 +83,11 @@
       },
       // 表单提交
       submitUpload () {
+        // console.log(this.fileList)
+        // if (this.fileList.length === 0) {
+        //   this.$message.error('请选择文件')
+        //   return
+        // }
         this.$refs.upload.submit()
       },
       overlimit () {
@@ -92,11 +97,18 @@
         })
       },
       successHandler (res) {
-        this.$notify({
-          title: '成功',
-          message: res.msg,
-          type: 'success'
-        })
+        if (res.code === 0) {
+          this.$notify({
+            title: '成功',
+            message: '添加成功',
+            type: 'success'
+          })
+        } else {
+          this.$notify.error({
+            title: '错误',
+            message: res.msg
+          })
+        }
         this.visible = false
         this.$emit('refreshDataList')
       },

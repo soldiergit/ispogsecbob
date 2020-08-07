@@ -2,10 +2,8 @@ package com.ispogsecbob.modules.fabric.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.io.InputStream;
+import java.util.*;
 
 import com.ispogsecbob.common.utils.Constant;
 import com.ispogsecbob.common.utils.HttpClientUtils;
@@ -29,8 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- * 
- *
  * @author Mikey
  * @email biaogejiushibiao@outlook.com
  * @date 2020-08-06 09:52:59
@@ -51,7 +47,7 @@ public class EntFabricFileController {
      */
     @RequestMapping("/list")
     @RequiresPermissions("enterprise:fabric:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = entFabricFileService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -63,8 +59,8 @@ public class EntFabricFileController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("enterprise:fabric:info")
-    public R info(@PathVariable("id") Long id){
-		EntFabricFileEntity entFabricFile = entFabricFileService.selectById(id);
+    public R info(@PathVariable("id") Long id) {
+        EntFabricFileEntity entFabricFile = entFabricFileService.selectById(id);
 
         return R.ok().put("entFabricFile", entFabricFile);
     }
@@ -74,8 +70,8 @@ public class EntFabricFileController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("enterprise:fabric:save")
-    public R save(@RequestBody EntFabricFileEntity entFabricFile){
-		entFabricFileService.insert(entFabricFile);
+    public R save(@RequestBody EntFabricFileEntity entFabricFile) {
+        entFabricFileService.insert(entFabricFile);
 
         return R.ok();
     }
@@ -85,8 +81,8 @@ public class EntFabricFileController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("enterprise:fabric:update")
-    public R update(@RequestBody EntFabricFileEntity entFabricFile){
-		entFabricFileService.updateById(entFabricFile);
+    public R update(@RequestBody EntFabricFileEntity entFabricFile) {
+        entFabricFileService.updateById(entFabricFile);
 
         return R.ok();
     }
@@ -96,43 +92,75 @@ public class EntFabricFileController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("enterprise:fabric:delete")
-    public R delete(@RequestBody Long[] ids){
-		entFabricFileService.deleteBatchIds(Arrays.asList(ids));
+    public R delete(@RequestBody Long[] ids) {
+        entFabricFileService.deleteBatchIds(Arrays.asList(ids));
 
         return R.ok();
     }
 
     /**
      * 文件上传
+     *
      * @param files
      * @return
      */
     @PostMapping(value = "/upload")
-    public Object uploadFile(@RequestParam("file") List<MultipartFile> files,@RequestParam("userId") Long userId) {
+    public Object uploadFile(@RequestParam("file") List<MultipartFile> files, @RequestParam("userId") Long userId) {
 
-        String UPLOAD_FILES_PATH = Constant.SAVE_BLOCK_CHAIN_FILE_PATH + RandomUtils.getRandomNums()+"/";
+        String UPLOAD_FILES_PATH = Constant.SAVE_BLOCK_CHAIN_FILE_PATH + RandomUtils.getRandomNums() + "/";
         if (Objects.isNull(files) || files.isEmpty()) {
             return R.error("文件为空，请重新上传");
         }
 
-        for(MultipartFile file : files){
-            String fileName = file.getOriginalFilename();
-            UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
-            UPLOAD_FILES_PATH += fileName;
-            EntFabricFileEntity fabricFileEntity = new EntFabricFileEntity();
-            fabricFileEntity.setFilePath(UPLOAD_FILES_PATH);
-            fabricFileEntity.setFileName(fileName);
-            fabricFileEntity.setUserId(userId);//对应的用户
-
+        for (MultipartFile file : files) {
             try {
+                //判断文件是否已经存在
+                if (entFabricFileService.findBySHA256(JasyptUtils.getSHA_256(file.getInputStream())) != null) return R.error("凭证已经存在");
+
+                String fileName = file.getOriginalFilename();
+                UpLoadFileUtils.upLoad(UPLOAD_FILES_PATH, fileName, file);
+                UPLOAD_FILES_PATH += fileName;
+                EntFabricFileEntity fabricFileEntity = new EntFabricFileEntity();
+                fabricFileEntity.setFilePath(UPLOAD_FILES_PATH);
+                fabricFileEntity.setFileName(fileName);
+                fabricFileEntity.setUserId(userId);//对应的用户
+
                 fabricFileEntity.setFileHash(JasyptUtils.getSHA_256(new File(fabricFileEntity.getFilePath())));//文件哈希
+
+                entFabricFileService.insert(fabricFileEntity);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            entFabricFileService.insert(fabricFileEntity);
         }
         return R.ok();
+    }
+
+    /**
+     * 校验文件
+     *
+     * @param file
+     * @return
+     */
+    @PostMapping(value = "/check")
+    public Object check(@RequestParam("file") MultipartFile file) {
+
+        EntFabricFileEntity entFabricFileEntity = null;
+
+        try {
+            String sha_256 = JasyptUtils.getSHA_256(file.getInputStream());
+            entFabricFileEntity = entFabricFileService.findBySHA256(sha_256);
+
+            HashMap<String, String> params = new HashMap<>();
+            params.put("hash",sha_256);
+            //TODO:向区块链系统发送请求查询数据是否存在
+            HttpClientUtils.doPost(Constant.BLOCK_CHAIN_CHECK_REQUEST_URL,params);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return R.ok().put("entFabricFileEntity", entFabricFileEntity);
     }
 
     /**
@@ -146,6 +174,7 @@ public class EntFabricFileController {
 
     /**
      * 更新审核状态
+     *
      * @param fabricFileId
      */
     @PostMapping(value = "/apply")
@@ -153,13 +182,13 @@ public class EntFabricFileController {
 
         EntFabricFileEntity fabricFileEntity = entFabricFileService.selectById(fabricFileId);
 
-        fabricFileEntity.setStatus(fabricFileEntity.getStatus()+1);
+        fabricFileEntity.setStatus(fabricFileEntity.getStatus() + 1);
 
         entFabricFileService.updateById(fabricFileEntity);
 
-        if (fabricFileEntity.getStatus()>=Constant.NUMBER_OF_CONSENSUS){
+        if (fabricFileEntity.getStatus() >= Constant.NUMBER_OF_CONSENSUS) {
             //TODO:存入区块链系统
-            logger.info("存证信息存入区块链系统|"+fabricFileEntity.toString());
+            logger.info("存证信息存入区块链系统|" + fabricFileEntity.toString());
             //
             HttpClientUtils.doGet(Constant.BLOCK_CHAIN_SAVE_REQUEST_URL);
         }

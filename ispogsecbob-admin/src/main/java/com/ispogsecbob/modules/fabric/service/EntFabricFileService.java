@@ -17,5 +17,7 @@ import java.util.Map;
 public interface EntFabricFileService extends IService<EntFabricFileEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    EntFabricFileEntity findBySHA256(String sha_256);
 }
 

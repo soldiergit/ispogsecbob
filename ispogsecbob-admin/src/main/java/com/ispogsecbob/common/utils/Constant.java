@@ -13,6 +13,7 @@ public class Constant {
 	//文件存入区块链共识个数
     public static final Integer NUMBER_OF_CONSENSUS = 3;
     public static final String BLOCK_CHAIN_SAVE_REQUEST_URL = "区块链保存请求URL";
+    public static final String BLOCK_CHAIN_CHECK_REQUEST_URL = "区块链保存请求URL";
 
     /**
 	 * 菜单类型
