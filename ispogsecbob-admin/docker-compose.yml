@@ -1,0 +1,11 @@
+version: '2'
+services:
+  ispogsecbob:
+    image: mikeyboom/ispogsecbob:latest
+    privileged: true
+    ports:
+      - 8081:8080
+    volumes:
+      - /root/mikey/MIKEY:/home/mikey/MIKEY
+    environment:
+      - spring.profiles.active=prod
