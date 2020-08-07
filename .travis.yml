@@ -1,20 +1,44 @@
-language: java
-services:
-  - docker
-sudo: required
-branches:
-  only:
-    - master
-script:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-  - docker build . -t "mikeyboom/ispogsecbob:latest"
-before_install:
-  - openssl aes-256-cbc -K $encrypted_1687bb340939_key -iv $encrypted_1687bb340939_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d
-  - chmod 600 ~/.ssh/id_rsa
-  - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-after_success:
-  - docker login -u=$DOCKER_NAME -p="$DOKCER_PWD"
-  - docker push mikeyboom/ispogsecbob:latest
-  - chmod 600 ~/.ssh/id_rsa
-  - rsync -az --delete ./docker-compose.yml root@$SERVER_IP:ispogsecbob/
-  - ssh -o "StrictHostKeyChecking no" -i id_rsa root@$SERVER_IP "cd ispogsecbob/;docker-compose -f docker-compose.yml pull;docker-compose -f docker-compose.yml up -d;exit"
+matrix:
+  include:
+    - language: node_js
+      node_js:
+        - 10.16.1
+      branches:
+        only:
+          - master
+      install:
+        - npm install
+      script:
+        - npm run build
+      addons:
+        ssh_known_hosts:
+          - $SERVER_IP
+      after_success:
+        - chmod 600 ~/.ssh/id_rsa
+        - rsync -az --delete ./dist/* root@$SERVER_IP:/usr/share/nginx/ispogsecbob-vue
+      before_install:
+        - openssl aes-256-cbc -K $encrypted_1687bb340939_key -iv $encrypted_1687bb340939_iv  -in id_rsa.enc -out ~/.ssh/id_rsa -d
+        - chmod 600 ~/.ssh/id_rsa
+        - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+        - cd ispogsecbob-vue
+    - language: java
+    services:
+      - docker
+    sudo: required
+    branches:
+      only:
+        - master
+    script:
+      - cd ispogsecbob-admin
+      - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - docker build . -t "mikeyboom/ispogsecbob:latest"
+    before_install:
+      - openssl aes-256-cbc -K $encrypted_1687bb340939_key -iv $encrypted_1687bb340939_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d
+      - chmod 600 ~/.ssh/id_rsa
+      - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    after_success:
+      - docker login -u=$DOCKER_NAME -p="$DOKCER_PWD"
+      - docker push mikeyboom/ispogsecbob:latest
+      - chmod 600 ~/.ssh/id_rsa
+      - rsync -az --delete ./docker-compose.yml root@$SERVER_IP:ispogsecbob/
+      - ssh -o "StrictHostKeyChecking no" -i id_rsa root@$SERVER_IP "cd ispogsecbob/;docker-compose -f docker-compose.yml pull;docker-compose -f docker-compose.yml up -d;exit"
