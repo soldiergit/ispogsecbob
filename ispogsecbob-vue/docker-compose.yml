@@ -4,3 +4,4 @@ services:
     image: mikeyboom/ispogsecbob-vue
     ports:
       - 8002:8001
+    restart: always

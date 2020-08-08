@@ -9,3 +9,4 @@ services:
       - /root/mikey/MIKEY:/home/mikey/MIKEY
     environment:
       - spring.profiles.active=prod
+    restart: always

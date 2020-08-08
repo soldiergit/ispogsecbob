@@ -38,6 +38,15 @@ CREATE SCHEMA ispogsecbob DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 6. 拉取镜像： `docker pull mikeyboom/ispogsecbob:latest`
 6. 启动服务： `docker-compose -f docker-compose.yml -d`
 
+### 修改数据库密码
+
+修改普通用户只改一个  `SET PASSWORD FOR 'username' = PASSWORD('xxxxxxxx');`
+
+修改root用户改两个  
+
+`SET PASSWORD FOR 'root' = PASSWORD('xxxxxxxxx');`  
+`SET PASSWORD FOR 'root'@'localhost'=PASSWORD('xxxxxxxxx');`
+
 
 #### 持续集成平台
 
