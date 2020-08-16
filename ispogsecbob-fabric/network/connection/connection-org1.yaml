@@ -19,13 +19,13 @@ peers:
   peer0.org1.example.com:
     url: grpcs://localhost:7051
     tlsCACerts:
-      path: crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: /home/mikey/DATA/MIKEY/IDEAWorkSpace/ispogsecbob/ispogsecbob-fabric/network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
     grpcOptions:
       ssl-target-name-override: peer0.org1.example.com
   peer1.org1.example.com:
     url: grpcs://localhost:8051
     tlsCACerts:
-      path: crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: /home/mikey/DATA/MIKEY/IDEAWorkSpace/ispogsecbob/ispogsecbob-fabric/network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
     grpcOptions:
       ssl-target-name-override: peer1.org1.example.com
 certificateAuthorities:
@@ -33,6 +33,6 @@ certificateAuthorities:
     url: https://localhost:7054
     caName: ca-org1
     tlsCACerts:
-      path: crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: /home/mikey/DATA/MIKEY/IDEAWorkSpace/ispogsecbob/ispogsecbob-fabric/network/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
     httpOptions:
       verify: false

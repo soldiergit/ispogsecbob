@@ -5,6 +5,8 @@ The directions for using this are documented in the Hyperledger Fabric
 
 *NOTE:* After navigating to the documentation, choose the documentation version that matches your version of Fabric
 
-start network `y|./byfn.sh up -o etcdraft -s couchdb`  
+start network `y|./byfn.sh up -a -o etcdraft -s couchdb`  
+
+stop and clean `y|./byfn.sh -m down`
 
 ![avatar](network.png)

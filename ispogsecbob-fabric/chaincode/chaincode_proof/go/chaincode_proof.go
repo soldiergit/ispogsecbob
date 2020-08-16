@@ -71,10 +71,10 @@ func (p *Proof) Deposit(stub shim.ChaincodeStubInterface, args []string) pb.Resp
 	}
 	//构筑结构体
 	var proof = Proof{
-		Time:     args[1],
-		FilePath: args[2],
-		HashCode: args[3],
-		Owner:    args[4],
+		Time:     args[0],
+		FilePath: args[1],
+		HashCode: args[2],
+		Owner:    args[3],
 		Overdue:  false,
 	}
 	//序列化

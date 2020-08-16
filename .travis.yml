@@ -1,5 +1,6 @@
 matrix:
   include:
+#  nodejs
   - language: node_js
     node_js:
     - 10.16.1
@@ -27,6 +28,7 @@ matrix:
     - chmod 600 ~/.ssh/id_rsa
     - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
     - cd ispogsecbob-vue
+#   java
   - language: java
     services:
     - docker
@@ -50,6 +52,31 @@ matrix:
     - rsync -az --delete ./docker-compose.yml root@$SERVER_IP:ispogsecbob/
     - ssh -o "StrictHostKeyChecking no" -i id_rsa root@$SERVER_IP "cd ispogsecbob/;docker-compose
       -f docker-compose.yml pull;docker-compose -f docker-compose.yml up -d;exit"
+#    fabric
+  - language: go
+    go:
+      - "1.14.6"
+    services:
+      - docker
+    sudo: required
+    branches:
+      only:
+        - master
+    script:
+      - go get github.com/astaxie/beego
+    before_install:
+      - openssl aes-256-cbc -K $encrypted_1687bb340939_key -iv $encrypted_1687bb340939_iv
+        -in id_rsa.enc -out ~/.ssh/id_rsa -d
+      - chmod 600 ~/.ssh/id_rsa
+      - echo -e "Host $SERVER_IP\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+      - cd ispogsecbob-fabric
+    after_success:
+      - docker login -u=$DOCKER_NAME -p="$DOKCER_PWD"
+      - docker push mikeyboom/ispogsecbob-fabric:latest
+      - chmod 600 ~/.ssh/id_rsa
+      - rsync -az --delete ./docker-compose.yml root@$SERVER_IP:ispogsecbob/
+      - ssh -o "StrictHostKeyChecking no" -i id_rsa root@$SERVER_IP "cd ispogsecbob-fabric/;docker-compose
+        -f docker-compose.yml pull;docker-compose -f docker-compose.yml up -d;exit"
 notifications:
   email: biaogejiushibiao@outlook.com
 before_install:
