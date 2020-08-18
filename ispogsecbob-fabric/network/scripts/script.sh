@@ -96,7 +96,7 @@ if [ "${NO_CHAINCODE}" != "true" ]; then
 	installChaincode 0 2
     echo "Install chaincode on peer0.org3..."
 	installChaincode 0 3
-	echo "Install chaincode on peer0.org3..."
+	echo "Install chaincode on peer0.org4..."
 	installChaincode 0 4
 	sleep 5s
 	# Instantiate chaincode on peer0.org2
@@ -113,7 +113,7 @@ if [ "${NO_CHAINCODE}" != "true" ]; then
 	echo "Querying chaincode on peer0.org3..."
 	chaincodeQuery 0 3 100
 	# Query chaincode on peer0.org1
-	echo "Querying chaincode on peer0.org3..."
+	echo "Querying chaincode on peer0.org4..."
 	chaincodeQuery 0 4 100
 
 	# Invoke chaincode on peer0.org1 and peer0.org2
@@ -141,5 +141,6 @@ echo "|  _|   |  \| | | | | | "
 echo "| |___  | |\  | | |_| | "
 echo "|_____| |_| \_| |____/  "
 echo
+
 
 exit 0
