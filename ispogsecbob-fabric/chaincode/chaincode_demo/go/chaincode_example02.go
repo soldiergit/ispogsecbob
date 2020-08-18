@@ -23,6 +23,7 @@ package main
 //hard-coding.
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -31,6 +32,19 @@ import (
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
+	//}
+	//凭证信息结构体
+	//type Proof struct {
+	//时间
+	Time string `json:time`
+	//凭证文件路近
+	FilePath string `json:filepath`
+	//文件hash
+	HashCode string `json:hashcode`
+	//持有者
+	Owner string `json:owner`
+	//是否过期
+	Overdue bool `json:overdue`
 }
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
@@ -83,6 +97,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	} else if function == "query" {
 		// the old "Query" is now implemtned in invoke
 		return t.query(stub, args)
+	} else if function == "verify" {
+		return t.Verify(stub, args)
+	} else if function == "deposit" {
+		return t.Deposit(stub, args)
 	}
 
 	return shim.Error("Invalid invoke function name. Expecting \"invoke\" \"delete\" \"query\"")
@@ -190,6 +208,50 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 	return shim.Success(Avalbytes)
 }
 
+//存放凭证
+func (p *SimpleChaincode) Deposit(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	//参数验证
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+	//构筑结构体
+	var proof = SimpleChaincode{
+		Time:     args[0],
+		FilePath: args[1],
+		HashCode: args[2],
+		Owner:    args[3],
+		Overdue:  false,
+	}
+	//序列化
+	proofBytes, err := json.Marshal(proof)
+	//错误处理
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to marchal: " + args[0] + "\"}"
+		return shim.Error(jsonResp)
+	}
+	//hash作为key
+	stub.PutState(args[2], proofBytes)
+	//响应
+	return shim.Success(proofBytes)
+}
+
+//验证
+func (p *SimpleChaincode) Verify(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	//参数验证
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+	//查询账本
+	proofAsBytes, err := stub.GetState(args[0])
+
+	if err != nil {
+		jsonResp := "{\"Error\":\"Failed to get state for: " + args[0] + "\"}"
+		return shim.Error(jsonResp)
+	}
+	//返回结果
+	//查询不到则返回空
+	return shim.Success(proofAsBytes)
+}
 func main() {
 	err := shim.Start(new(SimpleChaincode))
 	if err != nil {

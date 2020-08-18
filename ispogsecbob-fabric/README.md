@@ -30,3 +30,19 @@ cd application
 
 go run client/main.go
 ````
+
+4.hosts文件
+
+```jshelllanguage
+127.0.0.1	peer0.org1.example.com
+127.0.0.1	peer1.org1.example.com
+
+127.0.0.1	peer0.org2.example.com
+127.0.0.1	peer1.org2.example.com
+
+127.0.0.1	peer0.org3.example.com
+127.0.0.1	peer1.org3.example.com
+
+127.0.0.1	peer0.org3.example.com
+127.0.0.1	peer1.org3.example.com
+```

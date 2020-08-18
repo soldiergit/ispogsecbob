@@ -82,7 +82,7 @@ docker exec cli peer chaincode install -n proof_chaincode -v 1.0 -l golang -p gi
 docker exec cli2 peer chaincode install -n proof_chaincode -v 1.0 -l golang -p github.com/chaincode/chaincode_proof/go/
 docker exec cli3 peer chaincode install -n proof_chaincode -v 1.0 -l golang -p github.com/chaincode/chaincode_proof/go/
 echo "[instantiate chain-code]"
-docker exec cli peer chaincode instantiate -o orderer.example.com:7050 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n proof_chaincode -l golang -v 1.0 -c '{"Args":["init"]}' -P 'AND ('\''Org1MSP.member'\'','\''Org2MSP.member'\'','\''Org3MSP.member'\'','\''Org4MSP.member'\'')'
+docker exec cli peer chaincode instantiate -o orderer.example.com:7050 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n proof_chaincode -l golang -v 1.0 -c '{"Args":["init"]}' -P 'AND ('\''Org1MSP.peer'\'','\''Org2MSP.peer'\'','\''Org3MSP.peer'\'','\''Org4MSP.peer'\'')'
 sleep 1
 echo "[sleep 20 second wait chain-code instantiate]"
 sleep 19
@@ -233,7 +233,7 @@ function networkUp() {
     exit 1
   fi
 
-  installProofChainCode
+#  installProofChainCode
 }
 
 # Upgrade the network components which are at version 1.3.x to 1.4.x
